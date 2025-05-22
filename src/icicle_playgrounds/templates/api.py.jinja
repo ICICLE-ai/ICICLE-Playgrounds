@@ -1,0 +1,88 @@
+from litserve import LitAPI, LitServer
+
+{% if include_preprocessing %}
+from workflows import PreProcessing
+{% endif %}
+{% if include_postprocessing %}
+from workflows import PostProcessing
+{% endif %}
+
+
+class {{ model_name }}API(LitAPI):
+    """
+    Add your server API here for {{ model_name }}
+    using Lightening AI's Litserver.
+
+    This uses PyTorch as the AI framework.
+    """
+    def setup(self, device):
+        """
+        Add your server attributes here.
+        The processing device is added automatically.
+        It picks up whether the server is running on GPU or CPU.
+        :param device: Context-manager that changes the selected device.
+
+        Example:
+            import torch
+            from litserve import LitAPI
+
+            from icicle_playgrounds.plug_n_play.schemas import Image
+            from workflows import Preprocessing, Postprocessing
+
+            class MyAPI(LitAPI):
+                def setup(self, device, model_path):
+                    self.device = device
+                    self.obj = torch.load(model_path)
+                    self.preprocess = PreProcessing()
+                    self.postprocess = PostProcessing()
+
+                def decode_request(self, image: Image):
+                    return image
+
+                def predict(self, image):
+                    image = self.preprocess(image)
+                    with torch.no_grad():
+                        output = self.obj(image)
+                    result = self.postprocess(output)
+                    return result
+
+                def encode_response(self, result):
+                    return output.numpy().tolist()
+        """
+        self.device = device
+        # Add your server attributes here
+
+    def decode_request(self):
+        """
+        Decodes an incoming request's payload into a Pydantic schema.
+        Example:
+            from litserve import LitAPI
+            from icicle_playgrounds.plug_n_play.schemas import Image
+
+            class MyAPI(LitAPI):
+                def decode_request(self, image: Image):
+                    return image
+        """
+        pass
+
+    def encode_response(self):
+        """
+        Prepare the output of the obj's prediction
+        into a serializable JSON response.
+
+        Example:
+            from litserve import LitAPI
+
+            class MyAPI(LitAPI):
+                def encode_response(self, output: dict[str, Any):
+                    return output
+        """
+        pass
+
+    def predict(self, x):
+        """
+        This is your obj's prediction step
+
+        """
+        pass
+
