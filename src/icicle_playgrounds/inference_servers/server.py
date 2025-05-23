@@ -32,44 +32,7 @@ class InferenceServer(LitServer):
     def __init__(self, api: InferenceServerAPI, inference_endpoint: str, *args, **kwargs):
         super().__init__(*args, lit_api=api, api_path=inference_endpoint, **kwargs)
         self._api = api
-        self.app.add_api_route(
-            path="/shutdown",
-            endpoint=self.shutdown,
-            methods=["GET"],
-            dependencies=[Depends(self.setup_auth())],
-            status_code=status.HTTP_200_OK
-        )
-        self.app.add_api_route(
-            path="/ready",
-            endpoint=self.ready,
-            methods=["GET"],
-            dependencies=[Depends(self.setup_auth())],
-            status_code=status.HTTP_200_OK
-        )
-        self.app.add_api_route(
-            path="/add-model",
-            endpoint=self.add_model,
-            methods=["POST"],
-            dependencies=[Depends(self.setup_auth())],
-            status_code=status.HTTP_201_CREATED,
-            response_model=ModelInfo,
-        )
-        self.app.add_api_route(
-            path="/remove-model",
-            endpoint=self.remove_model,
-            methods=["DELETE"],
-            dependencies=[Depends(self.setup_auth())],
-            response_model=ModelInfo,
-            status_code=status.HTTP_200_OK
-        )
-        self.app.add_api_route(
-            path="/hot-swap-model",
-            endpoint=self.hot_swap_model,
-            methods=["PUT"],
-            dependencies=[Depends(self.setup_auth())],
-            response_model=ModelInfo,
-            status_code=status.HTTP_200_OK
-        )
+        self._register_apis()
 
         self._inference_model: ModelInfo | None = None
         self._loaded_models: dict[str, Model] = {}
@@ -89,6 +52,38 @@ class InferenceServer(LitServer):
     @property
     def loaded_models(self):
         return self._loaded_models
+
+    def _register_apis(self):
+        self.app.add_api_route(
+            path="/shutdown",
+            endpoint=self.shutdown,
+            methods=["GET"],
+            dependencies=[Depends(self.setup_auth())],
+            status_code=status.HTTP_200_OK,
+        )
+        self.app.add_api_route(
+            path="/ready",
+            endpoint=self.ready,
+            methods=["GET"],
+            dependencies=[Depends(self.setup_auth())],
+            status_code=status.HTTP_200_OK,
+        )
+        self.app.add_api_route(
+            path="/add-model",
+            endpoint=self.add_model,
+            methods=["POST"],
+            dependencies=[Depends(self.setup_auth())],
+            status_code=status.HTTP_201_CREATED,
+            response_model=ModelInfo,
+        )
+        self.app.add_api_route(
+            path="/hot-swap-model",
+            endpoint=self.hot_swap_model,
+            methods=["PUT"],
+            dependencies=[Depends(self.setup_auth())],
+            response_model=ModelInfo,
+            status_code=status.HTTP_200_OK,
+        )
 
     def _add_model(self, model_id: str, model_name: str, model: object):
         if model_id in self._loaded_models:
