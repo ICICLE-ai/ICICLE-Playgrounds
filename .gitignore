@@ -9,4 +9,4 @@ wheels/
 # Virtual environments
 .venv
 
-# Ignoring these for now.
+.idea
