@@ -2,10 +2,13 @@ import io
 import re
 import base64
 import httpx
-import cv2
+from PIL import Image as PILImage
 import numpy as np
+from numpy import ndarray
+from torch import Tensor
+from torchvision.transforms import PILToTensor, ToPILImage
 from typing import Any
-from pydantic import BaseModel, ConfigDict, ValidationError, field_validator, field_serializer
+from pydantic import BaseModel, ConfigDict, field_validator, field_serializer
 
 class Image(BaseModel):
     """
@@ -13,14 +16,22 @@ class Image(BaseModel):
 
     This class is designed to handle image data in various formats such as Base64-encoded strings,
     URLs, file paths, or NumPy arrays. It ensures that the input is converted into a valid
-    NumPy array representing the image. The model also provides functionality to serialize images
+    NumPy image representing the image. The model also provides functionality to serialize images
     into Base64 format for easier storage or transmission.
 
-    :ivar image: The image data represented as a NumPy array.
-    :type image: np.ndarray
+    :ivar image: The image data represented as a NumPy image.
+    :type image: PILImage.Image
     """
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    image: np.ndarray
+
+    image: PILImage.Image
+
+    def to_numpy(self) -> ndarray:
+        return np.asarray(self.image)
+
+    def to_tensor(self) -> Tensor:
+        return PILToTensor()(self.image)
+
     @classmethod
     def __check_if_base64(cls, value: str) -> bool:
         pattern = r"^[A-Za-z0-9+/]*[=]{0,2}$"
@@ -34,72 +45,78 @@ class Image(BaseModel):
             return False
 
     @classmethod
-    def __check_if_valid_numpy_image_array(cls, array: np.ndarray) -> bool:
-        return (len(array.shape) == 3 and array.shape[-1] == 3) or len(array.shape) == 2
-
-    @classmethod
-    def __build_from_base64(cls, value: str) -> np.ndarray:
+    def __build_from_base64(cls, value: str) -> PILImage.Image:
         try:
-            image_buff = base64.b64decode(value)
-            image_ndarray = np.frombuffer(image_buff, dtype=np.uint8)
-            image = cv2.imdecode(image_ndarray, cv2.IMREAD_UNCHANGED)
-
-            if cls.__check_if_valid_numpy_image_array(image):
-                return image
-            raise ValueError("Invalid value format")
+            buffer = io.BytesIO(base64.b64decode(value))
+            image = PILImage.open(buffer)
+            return image
         except Exception:
-            raise ValueError("Invalid value format")
+            raise ValueError("Error decoding base64 string")
 
 
     @classmethod
-    def __build_from_url(cls, url: str) -> np.ndarray:
+    def __build_from_url(cls, url: str) -> PILImage.Image:
         try:
-            image_buff = httpx.get(url).content
-            image = cv2.imdecode(np.frombuffer(image_buff, np.uint8), cv2.IMREAD_UNCHANGED)
+            response = httpx.get(url)
+            response.raise_for_status()
 
-            if cls.__check_if_valid_numpy_image_array(image):
-                return image
-            raise ValueError("Invalid value format")
-        except Exception:
-            raise ValueError("Invalid value format")
+            buffer = response.content
+
+            return PILImage.open(io.BytesIO(buffer))
+        except Exception as e:
+            raise e
 
     @classmethod
-    def __build_from_file(cls, path: str) -> np.ndarray:
+    def __build_from_file(cls, path: str) -> PILImage.Image:
         try:
-            # Step 1: Load value from file path
-            image = cv2.imread(path)
-            if image is None:
-                raise ValueError("Could not load value from file")
+            # Step 1: Strip 'file:/' from string
+            path = path.replace("file:/", "")
 
-            if cls.__check_if_valid_numpy_image_array(image):
-                return image
-            raise ValueError("Invalid value format")
+            # Step 2: Open image from file path
+            image = PILImage.open(path)
+            return image
+        except Exception as e:
+            raise e
+
+    @classmethod
+    def __build_from_numpy(cls, value: ndarray) -> PILImage.Image:
+        try:
+            # return PILImage.fromarray(value)
+            return ToPILImage()(value)
         except Exception:
-            raise ValueError("Invalid value format")
+            raise ValueError("Invalid NumPy array format")
 
+    @classmethod
+    def __build_from_tensor(cls, value: Tensor) -> PILImage.Image:
+        try:
+            return ToPILImage()(value)
+        except Exception:
+            raise ValueError("Invalid tensor format")
 
     @field_validator("image", mode="before")
     @classmethod
-    def validate_input_value(cls, value: Any) -> np.ndarray:
+    def validate_input_value(cls, value: Any) -> PILImage.Image:
         if isinstance(value, str):
-            # If it's not a NumPy array, then build one using the provided string.
-            if cls.__check_if_base64(value):
-                return cls.__build_from_base64(value)
-            elif value.startswith("http"):
+            # If it's not a NumPy image, then build one using the provided string.
+            if value.startswith("http"):
                 return cls.__build_from_url(value)
             elif value.startswith("file"):
                 return cls.__build_from_file(value)
+            elif cls.__check_if_base64(value):
+                return cls.__build_from_base64(value)
             else:
-                raise ValueError("Invalid value format")
-        elif isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.uint8):
-            if cls.__check_if_valid_numpy_image_array(value):
-                return value
-            raise ValueError("Invalid value format")
+                raise ValueError("Invalid value string format")
+        elif isinstance(value, PILImage.Image):
+            return value
+        elif isinstance(value, ndarray):
+            return cls.__build_from_numpy(value)
+        elif isinstance(value, Tensor):
+            return cls.__build_from_tensor(value)
         else:
             raise ValueError("Invalid value format")
 
     @field_serializer("image")
-    def serialize_image(self, image: np.ndarray) -> str:
+    def serialize_image(self, image: PILImage.Image) -> str:
         buffer = io.BytesIO()
-        np.save(buffer, image)
+        image.save(buffer, format="PNG")
         return base64.b64encode(buffer.getvalue()).decode("utf-8")

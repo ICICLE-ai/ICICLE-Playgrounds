@@ -9,5 +9,5 @@ upgrade:
   uv lock --upgrade
 
 publish:
-    uv build && uv publish
+    rm ./dist/* && uv build && uv publish
 

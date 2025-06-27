@@ -1,17 +1,19 @@
 [project]
 name = "icicle-playgrounds"
-version = "0.1.1"
+version = "0.1.2"
 description = "SDK to interact with the ICICLE Model & Data Playgrounds"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "httpx>=0.28.1",
-    "opencv-python-headless>=4.11.0.86",
+    "pillow>=11.2.1",
     "pydantic>=2.11.7",
+    "torchvision>=0.22.1",
 ]
 
 [dependency-groups]
 test = [
+    "hypothesis>=6.135.16",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.0.0",
 ]
