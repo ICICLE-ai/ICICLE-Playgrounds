@@ -1,6 +1,6 @@
 [project]
 name = "icicle-playgrounds"
-version = "0.1.2"
+version = "0.1.3"
 description = "SDK to interact with the ICICLE Model & Data Playgrounds"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,8 +12,8 @@ dependencies = [
 ]
 
 [dependency-groups]
-test = [
+dev = [
+    "docstring-to-markdown>=0.17",
     "hypothesis>=6.135.16",
     "pytest>=8.4.1",
-    "pytest-asyncio>=1.0.0",
 ]

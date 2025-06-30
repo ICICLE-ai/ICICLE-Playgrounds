@@ -6,7 +6,7 @@ import base64
 import io
 
 
-from icicle_playgrounds.pydantic_models.plug_n_play.Image import Image
+from icicle_playgrounds.pydantic.plug_n_play.Image import Image
 from hypothesis import given, strategies as st
 from hypothesis.extra.numpy import arrays
 
