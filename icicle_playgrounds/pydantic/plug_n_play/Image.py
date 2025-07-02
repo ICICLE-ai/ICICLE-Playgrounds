@@ -1,14 +1,16 @@
+import base64
 import io
 import re
-import base64
+from typing import Any, Optional
+
 import httpx
-from PIL import Image as PILImage
 import numpy as np
-from numpy import ndarray
-from torch import Tensor
+import torch
+from PIL import Image as PILImage
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 from torchvision.transforms import PILToTensor, ToPILImage
-from typing import Any
-from pydantic import BaseModel, ConfigDict, field_validator, field_serializer
+from torch import Tensor
+
 
 class Image(BaseModel):
     """A versatile image handling class that supports multiple input formats and conversions.
@@ -23,38 +25,39 @@ class Image(BaseModel):
     Examples:
         >>> # From URL
         >>> img = Image(image="http://example.com/image.jpg")
-        >>> 
+        >>>
         >>> # From file
         >>> img = Image(image="file:/path/to/image.png")
-        >>> 
+        >>>
         >>> # From base64
         >>> img = Image(image="base64_encoded_string")
-        >>> 
+        >>>
         >>> # From numpy array
         >>> img = Image(image=numpy_array)
-        >>> 
+        >>>
         >>> # From PyTorch tensor
         >>> img = Image(image=torch_tensor)
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    image: PILImage.Image
+    image: PILImage.Image | None = None
+    """The internal PIL Image representation of the image data."""
 
-    def to_numpy(self) -> ndarray:
+    def to_numpy(self) -> np.ndarray:
         """Converts the internal PIL Image to a NumPy array.
 
         Returns:
-            ndarray: A NumPy array containing the image data with shape (H, W, C) for RGB
+            np.ndarray: A NumPy array containing the image data with shape (H, W, C) for RGB
             images or (H, W) for grayscale images.
         """
         return np.asarray(self.image)
 
-    def to_tensor(self) -> Tensor:
+    def to_tensor(self) -> torch.Tensor:
         """Convert the image to a PyTorch tensor.
 
         Returns:
-            Tensor: The image data as a PyTorch tensor.
+            torch.Tensor: The image data as a PyTorch tensor.
         """
         return PILToTensor()(self.image)
 
@@ -145,11 +148,11 @@ class Image(BaseModel):
             raise e
 
     @classmethod
-    def __build_from_numpy(cls, value: ndarray) -> PILImage.Image:
+    def __build_from_numpy(cls, value: np.ndarray) -> PILImage.Image:
         """Create a PIL Image from a NumPy array.
 
         Args:
-            value (ndarray): The NumPy array containing image data.
+            value (np.ndarray): The NumPy array containing image data.
 
         Returns:
             PIL.Image.Image: The converted image.
@@ -163,11 +166,11 @@ class Image(BaseModel):
             raise ValueError("Invalid NumPy array format")
 
     @classmethod
-    def __build_from_tensor(cls, value: Tensor) -> PILImage.Image:
+    def __build_from_tensor(cls, value: torch.Tensor) -> PILImage.Image:
         """Create a PIL Image from a PyTorch tensor.
 
         Args:
-            value (Tensor): The PyTorch tensor containing image data.
+            value (torch.Tensor): The PyTorch tensor containing image data.
 
         Returns:
             PIL.Image.Image: The converted image.
@@ -182,28 +185,18 @@ class Image(BaseModel):
 
     @field_validator("image", mode="before")
     @classmethod
-    def _validate_input_value(cls, value: Any) -> PILImage.Image:
+    def _validate_input_value(cls, value: Any) -> Optional[PILImage.Image]:
         """Validates and converts input value to PIL Image.
 
-        This validator handles multiple input formats including URLs, file paths,
-        base64 strings, PIL Images, NumPy arrays, and PyTorch tensors.
-
-        Args:
-            value (Any): The input value to validate and convert. Can be one of:
-            - str: URL starting with 'http', file path starting with 'file:/', or base64 string
-            - PIL.Image.Image: Direct PIL Image instance
-            - ndarray: NumPy array with shape (H, W, C) or (H, W)
-            - Tensor: PyTorch tensor with shape (C, H, W)
-
         Returns:
-            PIL.Image.Image: The validated and converted PIL Image instance.
-
-        Raises:
-            ValueError: If the input value cannot be converted to a valid image.
-            Common cases include invalid string formats, malformed base64 data,
-            or incompatible array shapes.
+            Optional[PIL.Image.Image]: The validated and converted PIL Image instance or None.
         """
+        # Handle None and empty string cases
+        if value is None or (isinstance(value, str) and not value):
+            return None
+
         if isinstance(value, str):
+            # Handle other string cases
             if value.startswith("http"):
                 return cls.__build_from_url(value)
             elif value.startswith("file"):
@@ -214,15 +207,29 @@ class Image(BaseModel):
                 raise ValueError("Invalid value string format")
         elif isinstance(value, PILImage.Image):
             return value
-        elif isinstance(value, ndarray):
-            return cls.__build_from_numpy(value)
+        elif isinstance(value, np.ndarray):
+            if value.size == 0:
+                raise ValueError("Empty array is not allowed")
+            if np.any(np.equal(value, None)):
+                raise ValueError("Array containing None values is not allowed")
+            try:
+                return cls.__build_from_numpy(value)
+            except Exception:
+                raise ValueError("Invalid NumPy array format")
         elif isinstance(value, Tensor):
-            return cls.__build_from_tensor(value)
+            if value.numel() == 0:
+                raise ValueError("Empty tensor is not allowed")
+            if torch.isnan(value).any():
+                raise ValueError("Tensor containing NaN values is not allowed")
+            try:
+                return cls.__build_from_tensor(value)
+            except Exception:
+                raise ValueError("Invalid tensor format")
         else:
             raise ValueError("Invalid value format")
 
     @field_serializer("image")
-    def _serialize_image(self, image: PILImage.Image) -> str:
+    def _serialize_image(self, image: PILImage.Image | None) -> str:
         """Serialize the PIL Image to a base64 encoded string.
 
         Args:
@@ -231,6 +238,8 @@ class Image(BaseModel):
         Returns:
             str: The base64 encoded string representation of the image.
         """
+        if image is None:
+            return ""
         buffer = io.BytesIO()
         image.save(buffer, format="PNG")
         return base64.b64encode(buffer.getvalue()).decode("utf-8")
