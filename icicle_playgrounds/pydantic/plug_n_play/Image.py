@@ -1,6 +1,5 @@
 import base64
 import io
-import re
 from typing import Any, Optional
 
 import httpx
@@ -60,26 +59,6 @@ class Image(BaseModel):
             torch.Tensor: The image data as a PyTorch tensor.
         """
         return PILToTensor()(self.image)
-
-    @classmethod
-    def __check_if_base64(cls, value: str) -> bool:
-        """Check if a string is a valid base64 encoded value.
-
-        Args:
-            value (str): The string to check.
-
-        Returns:
-            bool: True if the string is valid base64, False otherwise.
-        """
-        pattern = r"^[A-Za-z0-9+/]*[=]{0,2}$"
-        if not re.match(pattern, value):
-            return False
-        try:
-            decoded = base64.b64decode(value)
-            encoded = base64.b64encode(decoded).decode()
-            return value.rstrip("=") == encoded.rstrip("=")
-        except Exception:
-            return False
 
     @classmethod
     def __build_from_base64(cls, value: str) -> PILImage.Image:
@@ -201,10 +180,9 @@ class Image(BaseModel):
                 return cls.__build_from_url(value)
             elif value.startswith("file"):
                 return cls.__build_from_file(value)
-            elif cls.__check_if_base64(value):
-                return cls.__build_from_base64(value)
             else:
-                raise ValueError("Invalid value string format")
+                # Should be a base64 encoded string
+                return cls.__build_from_base64(value)
         elif isinstance(value, PILImage.Image):
             return value
         elif isinstance(value, np.ndarray):
