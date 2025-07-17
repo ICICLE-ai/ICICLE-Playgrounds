@@ -66,16 +66,15 @@ class AudioClassificationPipelineInput(PipelineIO):
         if isinstance(value, str):
             if value.startswith("file:/"):
                 # Input value is a file path, need to strip 'file:/' prefix
-                return value.split("file:/")[1]
+                value = value.split("file:/")[1]
             elif value.startswith("base64"):
                 # Input value should be a base64 encoded string. Need to decode to NumPy Array
                 value = cls._base64_to_ndarray(encoded_str=value)
-                return value
             else:
                 raise ValueError("Invalid string input format")
         elif isinstance(value, list):
             # Input could be a list of floats, will convert to NumPy Array
-            return np.array(value)
+            value = np.array(value)
         elif isinstance(value, dict):
             # Input is a dictionary where a key could be a base64 encoded
             # NumPy array or a list to convert to a NumPy array.
