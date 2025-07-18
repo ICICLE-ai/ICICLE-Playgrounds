@@ -34,7 +34,7 @@ import {{Callout}} from 'nextra/components'
         f.write(mdx_content)
 
 # Generate MDX files for each class
-generate_mdx(Image, "pydantic/image")
+generate_mdx(Image, "pydantic/data")
 generate_mdx(PatraModelCard, "pydantic/patra-model-card")
 generate_mdx(PatraBiasAnalysis, "pydantic/patra-bias-analysis")
 generate_mdx(PatraXAIAnalysis, "pydantic/patra-xai-analysis")

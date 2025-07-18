@@ -1,6 +1,6 @@
 [project]
 name = "icicle-playgrounds"
-version = "0.1.5.3"
+version = "0.1.5.4"
 description = "SDK to interact with the ICICLE Model & Data Playgrounds"
 readme = "README.md"
 requires-python = ">=3.12"

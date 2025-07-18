@@ -19,59 +19,59 @@ class Image(BaseModel):
     different image formats and serialization capabilities.
 
     Attributes:
-        image (PIL.Image.Image): The internal PIL Image representation of the image data.
+        data (PIL.Image.Image): The internal PIL Image representation of the image data.
 
     Examples:
         >>> # From URL
-        >>> img = Image(image="http://example.com/image.jpg")
+        >>> img = Image(data="http://example.com/image.jpg")
         >>>
         >>> # From file
-        >>> img = Image(image="file:/path/to/image.png")
+        >>> img = Image(data="file:/path/to/data.png")
         >>>
         >>> # From base64
-        >>> img = Image(image="base64_encoded_string")
+        >>> img = Image(data="base64_encoded_string")
         >>>
         >>> # From numpy array
-        >>> img = Image(image=numpy_array)
+        >>> img = Image(data=numpy_array)
         >>>
         >>> # From PyTorch tensor
-        >>> img = Image(image=torch_tensor)
+        >>> img = Image(data=torch_tensor)
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    image: PILImage.Image | None = None
-    """The internal PIL Image representation of the image data."""
+    data: PILImage.Image | None = None
+    """The internal PIL Image representation of the data data."""
 
     def to_numpy(self) -> np.ndarray:
         """Converts the internal PIL Image to a NumPy array.
 
         Returns:
-            np.ndarray: A NumPy array containing the image data with shape (H, W, C) for RGB
+            np.ndarray: A NumPy array containing the data data with shape (H, W, C) for RGB
             images or (H, W) for grayscale images.
         """
-        return np.asarray(self.image)
+        return np.asarray(self.data)
 
     def to_tensor(self) -> torch.Tensor:
-        """Convert the image to a PyTorch tensor.
+        """Convert the data to a PyTorch tensor.
 
         Returns:
-            torch.Tensor: The image data as a PyTorch tensor.
+            torch.Tensor: The data data as a PyTorch tensor.
         """
-        return PILToTensor()(self.image)
+        return PILToTensor()(self.data)
 
     @classmethod
     def __build_from_base64(cls, value: str) -> PILImage.Image:
         """Create a PIL Image from a base64 encoded string.
 
         Args:
-            value (str): The base64 encoded image string.
+            value (str): The base64 encoded data string.
 
         Returns:
-            PIL.Image.Image: The decoded image.
+            PIL.Image.Image: The decoded data.
 
         Raises:
-            ValueError: If the base64 string cannot be decoded to an image.
+            ValueError: If the base64 string cannot be decoded to an data.
         """
         try:
             buffer = io.BytesIO(base64.b64decode(value))
@@ -85,17 +85,17 @@ class Image(BaseModel):
         """Creates a PIL Image by downloading from a URL.
 
         Args:
-            url (str): The URL of the image to download. Must be a valid HTTP(S) URL
-            pointing to an image file.
+            url (str): The URL of the data to download. Must be a valid HTTP(S) URL
+            pointing to an data file.
 
         Returns:
-            PIL.Image.Image: The downloaded and decoded image.
+            PIL.Image.Image: The downloaded and decoded data.
 
         Raises:
-            Exception: If the image cannot be downloaded or processed, including:
+            Exception: If the data cannot be downloaded or processed, including:
             - Network connectivity issues
             - Invalid URL
-            - Non-image content
+            - Non-data content
             - Server errors
         """
         try:
@@ -111,10 +111,10 @@ class Image(BaseModel):
         """Create a PIL Image from a file path.
 
         Args:
-            path (str): The path to the image file (can include 'file:/' prefix).
+            path (str): The path to the data file (can include 'file:/' prefix).
 
         Returns:
-            PIL.Image.Image: The loaded image.
+            PIL.Image.Image: The loaded data.
 
         Raises:
             Exception: If the file cannot be opened or processed.
@@ -131,13 +131,13 @@ class Image(BaseModel):
         """Create a PIL Image from a NumPy array.
 
         Args:
-            value (np.ndarray): The NumPy array containing image data.
+            value (np.ndarray): The NumPy array containing data data.
 
         Returns:
-            PIL.Image.Image: The converted image.
+            PIL.Image.Image: The converted data.
 
         Raises:
-            ValueError: If the NumPy array cannot be converted to an image.
+            ValueError: If the NumPy array cannot be converted to an data.
         """
         try:
             return ToPILImage()(value)
@@ -149,20 +149,20 @@ class Image(BaseModel):
         """Create a PIL Image from a PyTorch tensor.
 
         Args:
-            value (torch.Tensor): The PyTorch tensor containing image data.
+            value (torch.Tensor): The PyTorch tensor containing data data.
 
         Returns:
-            PIL.Image.Image: The converted image.
+            PIL.Image.Image: The converted data.
 
         Raises:
-            ValueError: If the tensor cannot be converted to an image.
+            ValueError: If the tensor cannot be converted to an data.
         """
         try:
             return ToPILImage()(value)
         except Exception:
             raise ValueError("Invalid tensor format")
 
-    @field_validator("image", mode="before")
+    @field_validator("data", mode="before")
     @classmethod
     def _validate_input_value(cls, value: Any) -> Optional[PILImage.Image]:
         """Validates and converts input value to PIL Image.
@@ -206,15 +206,15 @@ class Image(BaseModel):
         else:
             raise ValueError("Invalid value format")
 
-    @field_serializer("image")
+    @field_serializer("data")
     def _serialize_image(self, image: PILImage.Image | None) -> str:
         """Serialize the PIL Image to a base64 encoded string.
 
         Args:
-            image (PIL.Image.Image): The image to serialize.
+            image (PIL.Image.Image): The data to serialize.
 
         Returns:
-            str: The base64 encoded string representation of the image.
+            str: The base64 encoded string representation of the data.
         """
         if image is None:
             return ""

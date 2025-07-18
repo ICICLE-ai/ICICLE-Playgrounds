@@ -83,18 +83,18 @@ class TestImage:
     @given(valid_rgb_arrays())
     def test_hypothesis_create_from_numpy_rgb(self, array):
         """Test that any valid RGB numpy array can be converted to an Image"""
-        image = Image(image=array)
-        assert isinstance(image.image, PILImage.Image)
+        image = Image(data=array)
+        assert isinstance(image.data, PILImage.Image)
         # Check that the conversion preserves the data
-        np.testing.assert_array_almost_equal(np.array(image.image), array)
+        np.testing.assert_array_almost_equal(np.array(image.data), array)
 
     @given(valid_grayscale_arrays())
     def test_hypothesis_create_from_numpy_grayscale(self, array):
         """Test that any valid grayscale numpy array can be converted to an Image"""
-        image = Image(image=array)
-        assert isinstance(image.image, PILImage.Image)
+        image = Image(data=array)
+        assert isinstance(image.data, PILImage.Image)
         # For grayscale, the output might be 2D or 3D with same values in each channel
-        np_image = np.array(image.image)
+        np_image = np.array(image.data)
         if len(np_image.shape) == 3:
             np.testing.assert_array_almost_equal(np_image[:, :, 0], array)
         else:
@@ -103,8 +103,8 @@ class TestImage:
     @given(valid_tensors())
     def test_hypothesis_create_from_tensor(self, tensor):
         """Test that any valid tensor can be converted to an Image"""
-        image = Image(image=tensor)
-        assert isinstance(image.image, PILImage.Image)
+        image = Image(data=tensor)
+        assert isinstance(image.data, PILImage.Image)
 
     @given(st.text(alphabet=st.characters(blacklist_categories=("Cs",))))
     def test_hypothesis_invalid_string_input(self, invalid_str):
@@ -113,70 +113,70 @@ class TestImage:
             invalid_str
         ) and not invalid_str.startswith(("http", "file")):
             with pytest.raises(ValueError):
-                Image(image=invalid_str)
+                Image(data=invalid_str)
 
     def test_create_from_pil_image(self, sample_pil_image):
-        image = Image(image=sample_pil_image)
-        assert isinstance(image.image, PILImage.Image)
+        image = Image(data=sample_pil_image)
+        assert isinstance(image.data, PILImage.Image)
 
     def test_create_from_numpy(self, sample_rgb_array):
-        image = Image(image=sample_rgb_array)
-        assert isinstance(image.image, PILImage.Image)
-        np.testing.assert_array_almost_equal(np.array(image.image), sample_rgb_array)
+        image = Image(data=sample_rgb_array)
+        assert isinstance(image.data, PILImage.Image)
+        np.testing.assert_array_almost_equal(np.array(image.data), sample_rgb_array)
 
     def test_create_from_tensor(self, sample_tensor):
-        image = Image(image=sample_tensor)
-        assert isinstance(image.image, PILImage.Image)
+        image = Image(data=sample_tensor)
+        assert isinstance(image.data, PILImage.Image)
 
     def test_create_from_base64(self, sample_base64_image):
-        image = Image(image=sample_base64_image)
-        assert isinstance(image.image, PILImage.Image)
+        image = Image(data=sample_base64_image)
+        assert isinstance(image.data, PILImage.Image)
 
     def test_to_numpy(self, sample_pil_image):
-        image = Image(image=sample_pil_image)
+        image = Image(data=sample_pil_image)
         numpy_array = image.to_numpy()
         assert isinstance(numpy_array, np.ndarray)
         np.testing.assert_array_equal(numpy_array, np.array(sample_pil_image))
 
     def test_to_tensor(self, sample_pil_image):
-        image = Image(image=sample_pil_image)
+        image = Image(data=sample_pil_image)
         tensor = image.to_tensor()
         assert isinstance(tensor, torch.Tensor)
 
     def test_create_from_url(self):
         image = Image(
-            image="https://raw.githubusercontent.com/tapis-project/camera-traps/refs/heads/main/installer/example_images/baby-red-fox.jpg"
+            data="https://raw.githubusercontent.com/tapis-project/camera-traps/refs/heads/main/installer/example_images/baby-red-fox.jpg"
         )
-        assert isinstance(image.image, PILImage.Image)
+        assert isinstance(image.data, PILImage.Image)
 
     def test_serialize_image(self, sample_pil_image):
-        image = Image(image=sample_pil_image)
+        image = Image(data=sample_pil_image)
         serialized = image.model_dump()
-        assert isinstance(serialized["image"], str)
+        assert isinstance(serialized["data"], str)
 
         # Verify we can decode it back
         decoded = Image.model_validate(serialized)
-        assert isinstance(decoded.image, PILImage.Image)
+        assert isinstance(decoded.data, PILImage.Image)
 
         serialized_json = image.model_dump_json()
         assert isinstance(serialized_json, str)
 
         # Verify we can decode it back
         decoded_json = Image.model_validate_json(serialized_json)
-        assert isinstance(decoded_json.image, PILImage.Image)
+        assert isinstance(decoded_json.data, PILImage.Image)
 
     def test_invalid_string_input(self):
         with pytest.raises(ValueError, match="Invalid value string format"):
-            Image(image="invalid_string")
+            Image(data="invalid_string")
 
     def test_invalid_numpy_array(self):
         invalid_array = np.array([1, 2, 3])  # 1D array
         with pytest.raises(ValueError, match="Invalid NumPy array format"):
-            Image(image=invalid_array)
+            Image(data=invalid_array)
 
     def test_invalid_base64(self):
         with pytest.raises(ValueError, match="Invalid value string format"):
-            Image(image="invalidbase64string")
+            Image(data="invalidbase64string")
 
     @given(
         arrays(
@@ -187,39 +187,39 @@ class TestImage:
     def test_hypothesis_invalid_channel_count(self, array):
         """Test that arrays with too many channels are rejected"""
         with pytest.raises(ValueError):
-            Image(image=array)
+            Image(data=array)
 
     @given(arrays(dtype=np.uint8, shape=st.tuples(st.integers(1, 10))))
     def test_hypothesis_invalid_dimensions(self, array):
         """Test that 1D arrays are rejected"""
         with pytest.raises(ValueError):
-            Image(image=array)
+            Image(data=array)
 
     def test_invalid_url(self):
         """Test handling of invalid or non-existent URLs"""
         with pytest.raises(Exception):
-            Image(image="http://nonexistent.example.com/image.jpg")
+            Image(data="http://nonexistent.example.com/image.jpg")
 
     def test_invalid_file_path(self):
         """Test handling of invalid file paths"""
         with pytest.raises(Exception):
-            Image(image="file:/nonexistent/path/image.jpg")
+            Image(data="file:/nonexistent/path/data.jpg")
 
     def test_corrupted_base64(self):
         """Test handling of corrupted base64 data"""
-        # Valid base64 structure but corrupted image data
-        corrupted_base64 = base64.b64encode(b"not an image").decode("utf-8")
+        # Valid base64 structure but corrupted data data
+        corrupted_base64 = base64.b64encode(b"not an data").decode("utf-8")
         with pytest.raises(ValueError):
-            Image(image=corrupted_base64)
+            Image(data=corrupted_base64)
 
     @given(st.binary(min_size=1))
     def test_hypothesis_invalid_image_data(self, invalid_data):
-        """Test handling of invalid image data in various formats"""
-        # Convert to base64 to test invalid image data in base64 format
+        """Test handling of invalid data data in various formats"""
+        # Convert to base64 to test invalid data data in base64 format
         base64_data = base64.b64encode(invalid_data).decode("utf-8")
         if Image._Image__check_if_base64(base64_data):
             with pytest.raises(ValueError):
-                Image(image=base64_data)
+                Image(data=base64_data)
 
     @given(
         st.one_of(
@@ -240,53 +240,53 @@ class TestImage:
     def test_hypothesis_invalid_dtype(self, array):
         """Test that arrays with invalid dtypes are rejected"""
         with pytest.raises(ValueError):
-            Image(image=array)
+            Image(data=array)
 
     def test_image_size_preservation(self, sample_pil_image):
-        """Test that image dimensions are preserved after conversion"""
+        """Test that data dimensions are preserved after conversion"""
         original_size = sample_pil_image.size
-        image = Image(image=sample_pil_image)
-        assert image.image.size == original_size
+        image = Image(data=sample_pil_image)
+        assert image.data.size == original_size
 
     def test_image_mode_preservation(self, sample_pil_image):
-        """Test that image mode (RGB, RGBA, etc.) is preserved"""
+        """Test that data mode (RGB, RGBA, etc.) is preserved"""
         original_mode = sample_pil_image.mode
-        image = Image(image=sample_pil_image)
-        assert image.image.mode == original_mode
+        image = Image(data=sample_pil_image)
+        assert image.data.mode == original_mode
 
     @pytest.mark.parametrize("none_value", [None, ""])
     def test_none_input(self, none_value):
         """Test handling of None and None-like values"""
-        image = Image(image=none_value)
-        assert image.image is None
+        image = Image(data=none_value)
+        assert image.data is None
 
     def test_large_tensor_handling(self):
         """Test handling of large tensor inputs"""
         large_tensor = torch.randint(0, 255, (3, 1000, 1000), dtype=torch.uint8)
-        image = Image(image=large_tensor)
-        assert isinstance(image.image, PILImage.Image)
-        assert image.image.size == (1000, 1000)
+        image = Image(data=large_tensor)
+        assert isinstance(image.data, PILImage.Image)
+        assert image.data.size == (1000, 1000)
 
     def test_none_handling(self):
         """Test comprehensive handling of None values in different scenarios"""
         # Direct None input - should return None
-        image = Image(image=None)
-        assert image.image is None
+        image = Image(data=None)
+        assert image.data is None
 
         # Test None in numpy array
         array_with_none = np.array([[None, None], [None, None]])
         with pytest.raises(ValueError):
-            Image(image=array_with_none)
+            Image(data=array_with_none)
 
         # Test None in tensor - skip this test as torch.tensor(None) is not valid
         # Test string representation of None
         with pytest.raises(ValueError):
-            Image(image="None")
+            Image(data="None")
 
         # Test empty string - should return None
-        image = Image(image="")
-        assert image.image is None
+        image = Image(data="")
+        assert image.data is None
 
         # Test string with only whitespace
         with pytest.raises(ValueError):
-            Image(image="   ")
+            Image(data="   ")
