@@ -1,6 +1,6 @@
 import inspect
 from docstring_to_markdown import convert
-from icicle_playgrounds.pydantic.plug_n_play import Image
+from icicle_playgrounds.pydantic.plug_n_play import Image, Tensor, DetectionResults
 from icicle_playgrounds.pydantic.patra_model_cards import PatraModelCard, PatraBiasAnalysis,PatraXAIAnalysis,PatraAIModel
 
 def generate_mdx(cls, output_file):
@@ -34,8 +34,10 @@ import {{Callout}} from 'nextra/components'
         f.write(mdx_content)
 
 # Generate MDX files for each class
-generate_mdx(Image, "pydantic/data")
-generate_mdx(PatraModelCard, "pydantic/patra-model-card")
-generate_mdx(PatraBiasAnalysis, "pydantic/patra-bias-analysis")
-generate_mdx(PatraXAIAnalysis, "pydantic/patra-xai-analysis")
-generate_mdx(PatraAIModel, "pydantic/patra-ai-model")
+generate_mdx(Image, "pydantic/plug-n-play/image")
+generate_mdx(cls=DetectionResults, output_file="pydantic/plug-n-play/detectionresults")
+generate_mdx(cls=Tensor, output_file="pydantic/plug-n-play/tensor")
+generate_mdx(PatraModelCard, "pydantic/patra-model-cards/patra-model-card")
+generate_mdx(PatraBiasAnalysis, "pydantic/patra-model-cards/patra-bias-analysis")
+generate_mdx(PatraXAIAnalysis, "pydantic/patra-model-cards/patra-xai-analysis")
+generate_mdx(PatraAIModel, "pydantic/patra-model-cards/patra-ai-model")

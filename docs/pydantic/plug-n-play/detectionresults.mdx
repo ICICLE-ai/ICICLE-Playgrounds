@@ -1,0 +1,53 @@
+---
+title: DetectionResults
+---
+
+import {Callout} from 'nextra/components'
+
+!!! abstract "Usage Documentation"
+    [Models](../concepts/models.md)
+
+A base class for creating Pydantic models.
+
+#### Attributes
+
+- `\_\_class_vars\_\_`: The names of the class variables defined on the model.
+- `\_\_private_attributes\_\_`: Metadata about the private attributes of the model.
+- `\_\_signature\_\_`: The synthesized `\_\_init\_\_` [`Signature`][inspect.Signature] of the model.
+- 
+- `\_\_pydantic_complete\_\_`: Whether model building is completed, or if there are still undefined fields.
+- `\_\_pydantic_core_schema\_\_`: The core schema of the model.
+- `\_\_pydantic_custom_init\_\_`: Whether the model has a custom `\_\_init\_\_` function.
+- `\_\_pydantic_decorators\_\_`: Metadata containing the decorators defined on the model.
+                                 This replaces `Model.\_\_validators\_\_` and `Model.\_\_root_validators\_\_` from Pydantic V1.
+- `\_\_pydantic_generic_metadata\_\_`: Metadata for generic models; contains data used for a similar purpose to
+                                       \_\_args\_\_, \_\_origin\_\_, \_\_parameters\_\_ in typing-module generics. May eventually be replaced by these.
+- `\_\_pydantic_parent_namespace\_\_`: Parent namespace of the model, used for automatic rebuilding of models.
+- `\_\_pydantic_post_init\_\_`: The name of the post-init method for the model, if defined.
+- `\_\_pydantic_root_model\_\_`: Whether the model is a [`RootModel`][pydantic.root_model.RootModel].
+- `\_\_pydantic_serializer\_\_`: The `pydantic-core` `SchemaSerializer` used to dump instances of the model.
+- `\_\_pydantic_validator\_\_`: The `pydantic-core` `SchemaValidator` used to validate instances of the model.
+- 
+- `\_\_pydantic_fields\_\_`: A dictionary of field names and their corresponding [`FieldInfo`][pydantic.fields.FieldInfo] objects.
+- `\_\_pydantic_computed_fields\_\_`: A dictionary of computed field names and their corresponding [`ComputedFieldInfo`][pydantic.fields.ComputedFieldInfo] objects.
+- 
+- `\_\_pydantic_extra\_\_`: A dictionary containing extra values, if [`extra`][pydantic.config.ConfigDict.extra]
+                            is set to `'allow'`.
+- `\_\_pydantic_fields_set\_\_`: The names of fields explicitly set during instantiation.
+- `\_\_pydantic_private\_\_`: Values of private attributes set on the model instance.
+
+
+## Properties
+
+### boxes
+Type: `<class 'icicle_playgrounds.pydantic.plug_n_play.Tensor.Tensor'>`
+
+### labels
+Type: `list[str]`
+
+### scores
+Type: `<class 'icicle_playgrounds.pydantic.plug_n_play.Tensor.Tensor'>`
+
+### box_format
+Type: `<enum 'BoundingBoxFormat'>`
+

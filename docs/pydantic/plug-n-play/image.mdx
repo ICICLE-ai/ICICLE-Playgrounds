@@ -1,0 +1,39 @@
+---
+title: Image
+---
+
+import {Callout} from 'nextra/components'
+
+A versatile image handling class that supports multiple input formats and conversions.
+
+This class can handle images from various sources including URLs, file paths, base64 strings,
+NumPy arrays, PyTorch tensors, and PIL Images. It provides methods for converting between
+different image formats and serialization capabilities.
+
+#### Attributes
+
+- `data (PIL.Image.Image)`: The internal PIL Image representation of the image data.
+
+#### Examples
+
+>>> # From URL
+>>> img = Image(data="http://example.com/image.jpg")
+>>>
+>>> # From file
+>>> img = Image(data="file:/path/to/data.png")
+>>>
+>>> # From base64
+>>> img = Image(data="base64_encoded_string")
+>>>
+>>> # From numpy array
+>>> img = Image(data=numpy_array)
+>>>
+>>> # From PyTorch tensor
+>>> img = Image(data=torch_tensor)
+
+
+## Properties
+
+### data
+Type: `PIL.Image.Image | None`
+

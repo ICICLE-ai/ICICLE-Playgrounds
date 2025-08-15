@@ -1,0 +1,85 @@
+---
+title: PatraModelCard
+---
+
+import {Callout} from 'nextra/components'
+
+A model card containing metadata and analysis information for a PATRA AI model.
+
+This class represents a comprehensive model card that includes information about the AI model,
+its creator, descriptions, and optional analysis results.
+
+#### Attributes
+
+- `ai_model (PatraAIModel)`: The AI model details and metrics.
+- `author (str)`: Name of the model card author.
+- `bias_analysis (PatraBiasAnalysis | None)`: Optional bias analysis results.
+- `categories (str)`: Model categories or domains.
+- `external_id (str)`: Unique external identifier for the model card.
+- `full_description (str)`: Detailed description of the model.
+- `input_data (str)`: Description of expected input data format.
+- `input_type (str)`: Type of input the model accepts.
+- `keywords (str)`: Relevant keywords for model search.
+- `name (str)`: Name of the model card.
+- `output_data (str)`: Description of model output format.
+- `short_description (str)`: Brief summary of the model.
+- `version (str)`: Version identifier of the model card.
+- `xai_analysis (PatraXAIAnalysis | None)`: Optional explainable AI analysis results.
+
+#### Example
+
+>>> model_card = PatraModelCard(
+...     ai_model=ai_model,
+...     author="John Doe",
+...     categories="Computer Vision",
+...     external_id="MC123",
+...     name="Image Classification Model",
+...     version="1.0.0",
+...     # ... other fields ...
+... )
+
+
+## Properties
+
+### ai_model
+Type: `<class 'icicle_playgrounds.pydantic.patra_model_cards.PatraAIModel.PatraAIModel'>`
+
+### author
+Type: `<class 'str'>`
+
+### bias_analysis
+Type: `icicle_playgrounds.pydantic.patra_model_cards.PatraBiasAnalysis.PatraBiasAnalysis | None`
+
+### categories
+Type: `<class 'str'>`
+
+### external_id
+Type: `<class 'str'>`
+
+### full_description
+Type: `<class 'str'>`
+
+### input_data
+Type: `<class 'str'>`
+
+### input_type
+Type: `<class 'str'>`
+
+### keywords
+Type: `<class 'str'>`
+
+### name
+Type: `<class 'str'>`
+
+### output_data
+Type: `<class 'str'>`
+
+### short_description
+Type: `<class 'str'>`
+
+### version
+Type: `<class 'str'>`
+
+### xai_analysis
+Type: `icicle_playgrounds.pydantic.patra_model_cards.PatraXAIAnalysis.PatraXAIAnalysis | None`
+
