@@ -1,0 +1,15 @@
+- id: icicle-playgrounds-sdk:0.1.5.4
+    owner: Carlos Guzman 
+    primaryThrust: core/FoundationAI
+    name: ICICLE-Playgrounds-SDK
+    status: PrototypeRelease
+    website: https://pypi.org/project/icicle-playgrounds/
+    description: SDK to interact with ICICLE Playgrounds 
+    componentVersion: 0.1.5.4
+    targetIcicleRelease: 2025-08
+    licenseUrl: https://github.com/ICICLE-ai/ICICLE-Playgrounds/blob/main/LICENSE
+    publicAccess: true
+    sourceCodeUrl: https://github.com/ICICLE-ai/ICICLE-Playgrounds
+    codeReviewConducted: true
+    testsWritten: true
+
