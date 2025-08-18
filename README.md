@@ -11,7 +11,6 @@ ICICLE Playgrounds is a Python SDK designed for working with AI plug-n-play fram
 - 🖼️ **Image Processing**: Support for image data handling and tensor operations
 - 🎯 **Detection Results**: Standardized formats for AI model outputs
 - 📋 **Model Cards**: PATRA (Partnership for Advanced Trusted Research in AI) model card support
-- 🔍 **Bias & XAI Analysis**: Tools for bias analysis and explainable AI
 
 ## Installation
 
@@ -120,4 +119,10 @@ For questions, issues, or support, please refer to the project's issue tracker o
 
 ---
 
-**Version**: 0.1.5.4
+## Acknowledgements
+
+This project is supported by:
+
+*National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)*
+---
+**Version**: 0.1.5.5
