@@ -111,15 +111,15 @@ class TestTensor:
 
     def test_init_from_torch_tensor_float(self):
         tensor = Tensor(data=torch.tensor(self.test_float_array, dtype=self.test_float_torch_dtype))
-        # assert isinstance(tensor.data, torch.Tensor)
-        # assert tensor.data.dtype == self.test_float_torch_dtype
-        # assert tensor.data.shape == (3,3)
-        # assert tensor.data.tolist() == self.test_float_array
+        assert isinstance(tensor.data, torch.Tensor)
+        assert tensor.data.dtype == self.test_float_torch_dtype
+        assert tensor.data.shape == (3,3)
+        assert tensor.data.tolist() == self.test_float_array
 
-        # print(tensor.model_dump())
-        # print(tensor.model_dump_json())
-        # print(tensor.model_validate(tensor.model_dump()))
-        # print(tensor.model_validate_json(tensor.model_dump_json()))
+        print(tensor.model_dump())
+        print(tensor.model_dump_json())
+        print(tensor.model_validate(tensor.model_dump()))
+        print(tensor.model_validate_json(tensor.model_dump_json()))
         print(tensor)
         print(tensor.model_dump(context={"to_base64": True}))
         print(tensor.model_dump_json(context={"to_base64": True}))

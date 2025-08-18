@@ -78,7 +78,7 @@ class Image(BaseModel):
             image = PILImage.open(buffer)
             return image
         except Exception:
-            raise ValueError("Error decoding base64 string")
+            raise ValueError("Invalid value string format.")
 
     @classmethod
     def __build_from_url(cls, url: str) -> PILImage.Image:

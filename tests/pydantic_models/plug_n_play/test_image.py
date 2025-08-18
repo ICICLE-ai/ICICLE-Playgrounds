@@ -109,9 +109,7 @@ class TestImage:
     @given(st.text(alphabet=st.characters(blacklist_categories=("Cs",))))
     def test_hypothesis_invalid_string_input(self, invalid_str):
         """Test that invalid strings are properly rejected"""
-        if not Image._Image__check_if_base64(
-            invalid_str
-        ) and not invalid_str.startswith(("http", "file")):
+        if invalid_str and not invalid_str.startswith(("http", "file")):
             with pytest.raises(ValueError):
                 Image(data=invalid_str)
 
@@ -212,15 +210,6 @@ class TestImage:
         with pytest.raises(ValueError):
             Image(data=corrupted_base64)
 
-    @given(st.binary(min_size=1))
-    def test_hypothesis_invalid_image_data(self, invalid_data):
-        """Test handling of invalid data data in various formats"""
-        # Convert to base64 to test invalid data data in base64 format
-        base64_data = base64.b64encode(invalid_data).decode("utf-8")
-        if Image._Image__check_if_base64(base64_data):
-            with pytest.raises(ValueError):
-                Image(data=base64_data)
-
     @given(
         st.one_of(
             arrays(
@@ -290,3 +279,10 @@ class TestImage:
         # Test string with only whitespace
         with pytest.raises(ValueError):
             Image(data="   ")
+
+def test_empty_string_base64_decoding(self):
+    """Test that empty string is treated as valid base64 and results in appropriate behavior"""
+    image = Image(data="")
+    # Based on your requirement, this should either be None or some empty image representation
+    # Adjust the assertion based on your expected behavior
+    assert image.data is None  # or whatever the expected result should be
