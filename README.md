@@ -135,4 +135,6 @@ This project is supported by:
 
 *National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)*
 ---
+**Tag**: FoundationAI
 **Version**: 0.1.5.5
+
